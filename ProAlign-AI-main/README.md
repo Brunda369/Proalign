@@ -90,7 +90,7 @@ ProAlign-AI/
 
 ### 1️⃣ Clone the repository
 
-git clone https://github.com/Teja2915/ProAlign-AI.git  
+git clone [https://github.com/Brunda369/Proalign.git] 
 cd ProAlign-AI
 
 ---
