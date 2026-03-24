@@ -165,14 +165,6 @@ Below 50 → 🌱 Beginner
 
 ---
 
-## 👨‍💻 Developed By
-
-Prajwal Teja  
-Final Year B.Tech Project  
-AI-Powered Professional Development Platform
-
----
-
 ## 📜 License
 
 This project is developed for academic and educational purposes.
