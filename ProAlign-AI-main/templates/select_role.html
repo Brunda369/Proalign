@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="glass-card" style="max-width:600px;margin:auto;">
+    <h2>Select Interview Role</h2>
+    <p style="margin-bottom:30px;color:var(--muted);">
+        Choose a role to begin your AI mock interview.
+    </p>
+
+    <form method="POST" action="/start_interview">
+
+        <div style="display:flex;flex-direction:column;gap:15px;">
+
+            <label>
+                <input type="radio" name="role" value="Software Developer" required>
+                Software Developer
+            </label>
+
+            <label>
+                <input type="radio" name="role" value="Data Analyst">
+                Data Analyst
+            </label>
+
+            <label>
+                <input type="radio" name="role" value="HR">
+                HR
+            </label>
+
+            <label>
+                <input type="radio" name="role" value="Marketing">
+                Marketing
+            </label>
+
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top:30px;">
+            Start Interview
+        </button>
+
+    </form>
+</div>
+
+{% endblock %}

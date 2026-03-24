@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="dashboard">
+
+    <!-- =========================
+         WELCOME SECTION
+    ========================== -->
+
+    <section class="welcome-block">
+        <h1>
+            Welcome back, <span>{{ name }}</span>
+        </h1>
+
+        <p>
+            Improve posture, master facial expressions, and prepare for real interviews
+            using AI-powered analysis.
+        </p>
+    </section>
+
+
+    <!-- =========================
+         STATS SECTION
+    ========================== -->
+
+    <section class="stats-grid">
+
+        <div class="stat-card">
+            <h1>{{total_interviews}}</h1>
+            <p>Mock Interviews</p>
+        </div>
+
+        <div class="stat-card">
+            <h1>{{confidence_score}}%</h1>
+            <p>Confidence Score</p>
+        </div>
+
+        <div class="stat-card">
+            <h1>{{level}}</h1>
+            <p>Growth Stage</p>
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FEATURES SECTION
+    ========================== -->
+
+    <section class="features-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon">🎤</div>
+            <h3>AI Mock Interview</h3>
+            <p>
+                Real-time interview simulation with speech recognition
+                and AI evaluation.
+            </p>
+            <a href="/select_role" class="btn-primary">Start Interview</a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🧍</div>
+            <h3>Posture Practice</h3>
+            <p>
+                Train your body alignment and improve professional
+                physical presence.
+            </p>
+            <a href="/posture" class="btn-primary">Practice Now</a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🙂</div>
+            <h3>Emotion Training</h3>
+            <p>
+                Refine facial expressions and maintain confident
+                communication tone.
+            </p>
+            <a href="/emotion" class="btn-primary">Train Emotion</a>
+        </div>
+
+    </section>
+    <a href="/history" class="btn-outline-hero" style="margin-top:20px; display:inline-block;">
+    View Performance Dashboard
+    </a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="glass-card" style="max-width:700px; margin:auto;">
+
+    <h2 style="margin-bottom:30px;">Profile Settings</h2>
+
+    <img src="{{ url_for('static', filename=user.profile_pic) }}"
+     class="profile-main-avatar">
+
+    <form method="POST" action="/update_profile" enctype="multipart/form-data">
+
+        <label>Upload From Computer</label>
+        <input type="file" name="profile_pic" style="margin-bottom:20px;">
+
+        <label>Or Choose Avatar</label>
+
+        <div style="display:flex; gap:20px; margin:20px 0;">
+
+            <label>
+                <input type="radio" name="avatar" value="default.png">
+                Default
+            </label>
+
+            <label>
+                <input type="radio" name="avatar" value="avatar1.png">
+                Avatar 1
+            </label>
+
+            <label>
+                <input type="radio" name="avatar" value="avatar2.png">
+                Avatar 2
+            </label>
+
+        </div>
+
+        <label>Theme Preference</label>
+
+        <select name="theme" style="width:100%; padding:12px; border-radius:12px; margin:20px 0; background:transparent; color:var(--text); border:1px solid var(--border);">
+
+            <option value="dark" {% if user.theme == 'dark' %}selected{% endif %}>Dark</option>
+            <option value="light" {% if user.theme == 'light' %}selected{% endif %}>Light</option>
+
+        </select>
+
+        <button type="submit" class="btn-primary">Save Changes</button>
+
+    </form>
+
+</div>
+
+{% endblock %}

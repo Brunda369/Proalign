@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="interview-layout">
+
+    <!-- LEFT PANEL (AI COACH) -->
+    <div class="panel">
+
+        <div class="ai-avatar">
+            AI
+        </div>
+
+        <h2>Emotion Practice Session</h2>
+
+        <div class="question-box">
+            <h3 id="currentEmotion">Detecting...</h3>
+        </div>
+
+        <div class="live-metrics">
+            <p>Confidence: <span id="confidenceScore">0</span>%</p>
+            <p>Status: <span id="coachMessage">Initializing camera...</span></p>
+        </div>
+
+        <div style="margin-top:20px;">
+            <button class="btn-primary" onclick="startEmotionSession()">
+                ▶ Start Session
+            </button>
+
+            <button class="btn-outline-hero" onclick="stopEmotionSession()">
+                ⏹ Finish Session
+            </button>
+        </div>
+
+    </div>
+
+    <!-- RIGHT PANEL (USER CAMERA) -->
+    <div class="panel">
+        <video id="video" autoplay muted></video>
+    </div>
+
+</div>
+
+<script>
+
+let emotionInterval = null;
+let emotionActive = false;
+
+const video = document.getElementById("video");
+
+/* =========================
+   CAMERA START
+========================= */
+
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => {
+    video.srcObject = stream;
+})
+.catch(err => {
+    console.log("Camera error:", err);
+});
+
+/* =========================
+   START SESSION
+========================= */
+
+function startEmotionSession() {
+
+    if (emotionActive) return;
+
+    emotionActive = true;
+
+    emotionInterval = setInterval(() => {
+
+        if (!video.videoWidth) return;
+
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+
+        const imageData = canvas.toDataURL("image/jpeg");
+
+        fetch("/analyze_emotion_frame", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: imageData })
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.dominant) {
+                document.getElementById("currentEmotion").innerText =
+                    "Current Emotion: " + data.dominant;
+
+                document.getElementById("confidenceScore").innerText =
+                    data.confidence;
+
+                updateCoachMessage(data.dominant);
+            }
+
+        });
+
+    }, 4000);
+
+}
+
+/* =========================
+   STOP SESSION
+========================= */
+
+function stopEmotionSession() {
+
+    emotionActive = false;
+
+    if (emotionInterval) {
+        clearInterval(emotionInterval);
+    }
+
+    fetch("/finish_emotion", {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.status === "completed") {
+
+            alert(
+                "Session Completed!\n\n" +
+                "Dominant Emotion: " + data.dominant + "\n" +
+                "Confidence Score: " + data.confidence_score + "%\n" +
+                "Stability Score: " + data.stability_score + "%"
+            );
+
+            window.location.href = "/home";
+        }
+
+    });
+
+}
+
+/* =========================
+   AI COACH LOGIC
+========================= */
+
+function updateCoachMessage(emotion) {
+
+    let message = "";
+
+    if (emotion === "neutral") {
+        message = "Add a slight smile to look confident.";
+    } else if (emotion === "sad") {
+        message = "Lift your chin and relax your eyebrows.";
+    } else if (emotion === "angry") {
+        message = "Soften your facial muscles.";
+    } else if (emotion === "fear") {
+        message = "Take a deep breath and maintain eye contact.";
+    } else if (emotion === "happy") {
+        message = "Excellent energy! Maintain it.";
+    } else {
+        message = "Maintain stable facial expression.";
+    }
+
+    document.getElementById("coachMessage").innerText = message;
+}
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="auth-container glass-card">
+
+    <h2 style="margin-bottom: 30px;">Welcome Back</h2>
+
+    <form method="POST" action="/login">
+
+        <input type="email" name="email" placeholder="Email Address" required>
+
+        <input type="password" name="password" placeholder="Password" required>
+
+        <button type="submit" class="btn-primary" style="width:100%; margin-top:10px;">
+            Login
+        </button>
+
+    </form>
+
+    <p style="margin-top:20px; color: var(--muted);">
+        Don’t have an account?
+        <a href="/signup" style="color: var(--secondary);">Sign up</a>
+    </p>
+
+</div>
+
+{% endblock %}

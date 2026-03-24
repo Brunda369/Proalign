@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ProAlign AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="{{ session.get('theme', 'dark') }}">
+
+<!-- ===========================
+     NAVBAR
+=========================== -->
+
+<nav class="navbar">
+
+    <!-- LEFT -->
+    <div class="nav-left">
+        <a href="{% if session.get('user_id') %}/home{% else %}/{% endif %}" class="brand"></a>
+            <span class="brand-gradient">ProAlign</span> AI
+        </a>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="nav-right">
+
+        {% if session.get("user_id") %}
+
+            <!-- Main Links -->
+            <a href="/home" class="nav-link">Home</a>
+            <a href="/select_role" class="nav-link">Interview</a>
+            <a href="/posture" class="nav-link">Posture</a>
+            <a href="/emotion" class="nav-link">Emotion</a>
+            <a href="/history" class="nav-link">Report</a>
+            <!-- Avatar -->
+            <a href="/profile">
+                <img src="{{ url_for('static', filename=session.get('profile_pic', 'default.png')) }}" 
+                     class="nav-avatar">
+            </a>
+
+            <!-- Logout -->
+            <a href="/logout" class="nav-link logout-btn">Logout</a>
+
+        {% else %}
+
+            <a href="/login" class="nav-btn nav-btn-outline">Login</a>
+            <a href="/signup" class="nav-btn nav-btn-filled">Get Started</a>
+
+        {% endif %}
+
+    </div>
+
+</nav>
+
+<!-- ===========================
+     MAIN CONTENT
+=========================== -->
+
+<main class="main-wrapper">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ===========================
+     BACKGROUND GLOW
+=========================== -->
+
+<div class="bg-glow glow-1"></div>
+<div class="bg-glow glow-2"></div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

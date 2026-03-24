@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="dashboard">
+
+    <div class="welcome-block">
+        <h1>Performance Dashboard</h1>
+        <p>Your complete professional readiness analysis</p>
+    </div>
+
+    <!-- =============================
+         PROFESSIONAL INDEX
+    ============================== -->
+    <div class="stat-card" style="margin-top:40px;">
+        Professional Confidence Index: {{ professional_index }}%
+        <div style="font-size:18px;margin-top:10px;">
+            {{ level }}
+        </div>
+    </div>
+
+    <!-- =============================
+         INTERVIEW HISTORY
+    ============================== -->
+    <div style="margin-top:70px;">
+        <h2>Interview Reports</h2>
+
+        {% if interviews %}
+            {% for interview in interviews %}
+            <div class="glass-card report-card" style="margin-top:25px;">
+
+                <div class="report-info">
+                    <h3>{{ interview.role }}</h3>
+                    <p>Score: {{ interview.overall if interview.overall else 0 }}%</p>
+                    <p>Date: {{ interview.started_at }}</p>
+                </div>
+
+                <div class="report-action">
+                    <a href="/report/{{ interview.id }}" class="btn-primary">
+                        View Full Report
+                    </a>
+                </div>
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="glass-card" style="margin-top:25px;">
+                No interview reports yet.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- =============================
+         POSTURE HISTORY
+    ============================== -->
+    <div style="margin-top:70px;">
+        <h2>Posture Sessions</h2>
+
+        {% if posture_sessions %}
+            {% for p in posture_sessions %}
+            <div class="glass-card report-card" style="margin-top:25px;">
+                <div class="report-info">
+                    <p>Average Score: {{ p.avg_score }}/10</p>
+                    <p>Date: {{ p.created_at }}</p>
+                    <a href="/posture" class="btn-primary">
+                        View Posture Sessions
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="glass-card" style="margin-top:25px;">
+                No posture sessions yet.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- =============================
+         EMOTION HISTORY
+    ============================== -->
+    <div style="margin-top:70px;">
+        <h2>Emotion Sessions</h2>
+
+        {% if emotion_sessions %}
+            {% for e in emotion_sessions %}
+            <div class="glass-card report-card" style="margin-top:25px;">
+                <div class="report-info">
+                    <p>Average Score: {{ e.avg_score }}/10</p>
+                    <p>Date: {{ e.created_at }}</p>
+                    <a href="/emotion" class="btn-primary">
+                        View Emotion Sessions
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="glass-card" style="margin-top:25px;">
+                No emotion sessions yet.
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block content %}
+{% if report_type == "interview" %}
+    {% set title = "Interview Report" %}
+{% elif report_type == "posture" %}
+    {% set title = "Posture Analysis Report" %}
+{% elif report_type == "emotion" %}
+    {% set title = "Emotion Analysis Report" %}
+{% else %}
+    {% set title = "Performance Report" %}
+{% endif %}
+
+<div class="dashboard">
+
+    <!-- ============================= -->
+    <!-- HEADER -->
+    <!-- ============================= -->
+    <div class="welcome-block">
+        <h1>{{ title }}</h1>
+        <p>Date: {{ created_at }}</p>
+    </div>
+
+    <!-- ============================= -->
+    <!-- INTERVIEW REPORT -->
+    <!-- ============================= -->
+    {% if report_type == "interview" %}
+
+        <div class="stat-card" style="margin-top:40px;">
+            Overall Score: {{ overall }}%
+        </div>
+
+    {% endif %}
+
+    <!-- ============================= -->
+    <!-- POSTURE REPORT -->
+    <!-- ============================= -->
+    {% if report_type == "posture" %}
+
+        <div class="stat-card" style="margin-top:40px;">
+            Average Posture Score: {{ avg_score }}/10
+        </div>
+
+    {% endif %}
+
+    <!-- ============================= -->
+    <!-- EMOTION REPORT -->
+    <!-- ============================= -->
+    {% if report_type == "emotion" %}
+
+        <div class="stat-card" style="margin-top:40px;">
+            Average Emotion Score: {{ avg_score }}/10
+        </div>
+
+    {% endif %}
+
+</div>
+
+    <!-- ===============================
+         OVERALL SCORE
+    ================================ -->
+
+    {% set overall = interview.overall if interview.overall is not none else 0 %}
+    {% set tech = interview.technical if interview.technical is not none else 0 %}
+    {% set emo = interview.emotion if interview.emotion is not none else 0 %}
+    {% set post = interview.posture if interview.posture is not none else 0 %}
+
+    <div class="stat-card" style="margin-top:40px;">
+        Overall Score: {{ overall }}%
+        <div style="font-size:18px;margin-top:10px;">
+            {{ badge if badge else "Performance Summary" }}
+        </div>
+    </div>
+
+    <!-- ===============================
+         SCORE GRID
+    ================================ -->
+    <div class="stats-grid" style="margin-top:50px;">
+
+        <div class="glass-card">
+            <h3>Technical Score</h3>
+            <div class="progress-bar">
+                <div class="progress-fill"
+                     style="width: tech * 10 ;">
+                </div>
+            </div>
+            <p>{{ tech }}/10</p>
+        </div>
+
+        <div class="glass-card">
+            <h3>Emotion Score</h3>
+            <div class="progress-bar">
+                <div class="progress-fill emotion"
+                     style="width: emo * 10;">
+                </div>
+            </div>
+            <p>{{ emo }}/10</p>
+        </div>
+
+        <div class="glass-card">
+            <h3>Posture Score</h3>
+            <div class="progress-bar">
+                <div class="progress-fill posture"
+                     style="width: post * 10 ;">
+                </div>
+            </div>
+            <p>{{ post }}/10</p>
+        </div>
+
+    </div>
+
+    <!-- ===============================
+         FEEDBACK
+    ================================ -->
+    <div class="glass-card" style="margin-top:60px;">
+        <h3>AI Performance Feedback</h3>
+        <p style="margin-top:15px;">
+            {{ feedback if feedback else "No feedback available." }}
+        </p>
+    </div>
+
+    <!-- ===============================
+         STRENGTHS & IMPROVEMENTS
+    ================================ -->
+    <div class="stats-grid" style="margin-top:50px;">
+
+        <div class="glass-card">
+            <h3>Strengths</h3>
+            <ul>
+                {% if strengths %}
+                    {% for s in strengths %}
+                        <li>✔ {{ s }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>No major strengths detected.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="glass-card">
+            <h3>Areas to Improve</h3>
+            <ul>
+                {% if improvements %}
+                    {% for i in improvements %}
+                        <li>⚠ {{ i }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>No major improvements required.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- ===============================
+         QUESTION BREAKDOWN
+    ================================ -->
+    <div style="margin-top:70px;">
+        <h2>Question-wise Breakdown</h2>
+
+        {% if answers %}
+            {% for a in answers %}
+            <div class="glass-card" style="margin-top:25px;">
+                <h4>{{ a.question }}</h4>
+                <p>
+                    <strong>Your Answer:</strong>
+                    {{ a.answer if a.answer else "No answer recorded." }}
+                </p>
+                <p>
+                    <strong>Score:</strong>
+                    {{ a.technical_score if a.technical_score is not none else 0 }}/10
+                </p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="glass-card" style="margin-top:25px;">
+                <p>No answers recorded for this interview.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

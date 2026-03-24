@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="posture-container">
+
+    <!-- LEFT PANEL -->
+    <div class="posture-left glass-card">
+
+        <h2>🧍 Smart Posture Coach</h2>
+        <p class="muted-text">
+            Sit straight. Keep shoulders aligned. Maintain confident posture.
+        </p>
+
+        <!-- SESSION TIMER -->
+        <div style="margin-top:15px; font-size:14px;" class="muted-text">
+            Session Time: <span id="sessionTimer">00:00</span>
+        </div>
+
+        <div class="score-circle">
+            <svg width="200" height="200">
+                <circle cx="100" cy="100" r="80"
+                        stroke="var(--border)"
+                        stroke-width="12"
+                        fill="none"/>
+
+                <circle id="progressCircle"
+                        cx="100" cy="100" r="80"
+                        stroke="url(#gradient)"
+                        stroke-width="12"
+                        fill="none"
+                        stroke-dasharray="502"
+                        stroke-dashoffset="502"
+                        stroke-linecap="round"
+                        style="transition: stroke-dashoffset 0.6s ease;"/>
+
+                <defs>
+                    <linearGradient id="gradient">
+                        <stop offset="0%" stop-color="#7c3aed"/>
+                        <stop offset="100%" stop-color="#06b6d4"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+
+            <div class="score-text">
+                <h1 id="scoreValue">0</h1>
+                <span>/10</span>
+            </div>
+        </div>
+
+        <!-- POSTURE STATE -->
+        <div style="margin-top:10px; font-weight:600;" id="postureState">
+            Waiting to start...
+        </div>
+
+        <div class="coach-feedback" id="coachText">
+            Start session to begin analysis
+        </div>
+
+        <!-- STABILITY SCORE -->
+        <div style="margin-top:15px;" class="muted-text">
+            Stability: <span id="stabilityScore">0%</span>
+        </div>
+
+        <div class="posture-controls">
+            <button class="btn-primary" id="startBtn" onclick="startSession()">
+                Start Session
+            </button>
+            <button class="btn-outline-hero" onclick="stopSession()">
+                Stop Session
+            </button>
+        </div>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="posture-right glass-card">
+        <video id="postureVideo" autoplay muted></video>
+    </div>
+
+</div>
+
+<script>
+
+let sessionActive = false;
+let postureInterval;
+let timerInterval;
+let lastVoiceTime = 0;
+let seconds = 0;
+let postureScores = [];
+
+/* ================================
+   START SESSION
+================================ */
+
+async function startSession() {
+
+    if (sessionActive) return; // prevent double click
+
+    await fetch("/start_posture_session", { method: "POST" });
+
+    sessionActive = true;
+    postureScores = [];
+    seconds = 0;
+
+    document.getElementById("startBtn").disabled = true;
+
+    speak("Posture session started");
+
+    postureInterval = setInterval(captureFrame, 2500);
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+/* ================================
+   STOP SESSION
+================================ */
+
+async function stopSession() {
+
+    if (!sessionActive) return;
+
+    sessionActive = false;
+
+    clearInterval(postureInterval);
+    clearInterval(timerInterval);
+
+    document.getElementById("startBtn").disabled = false;
+
+    const res = await fetch("/stop_posture_session", { method: "POST" });
+    const data = await res.json();
+
+    speak("Session completed. Your average score is " + data.avg_score);
+
+    document.getElementById("coachText").innerText =
+        "Session Finished. Average Score: " + data.avg_score;
+}
+
+/* ================================
+   TIMER
+================================ */
+
+function updateTimer() {
+
+    seconds++;
+
+    const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const secs = String(seconds % 60).padStart(2, '0');
+
+    document.getElementById("sessionTimer").innerText = mins + ":" + secs;
+}
+
+/* ================================
+   CAMERA
+================================ */
+
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => {
+    document.getElementById("postureVideo").srcObject = stream;
+})
+.catch(err => console.log("Camera error:", err));
+
+/* ================================
+   CAPTURE FRAME
+================================ */
+
+function captureFrame() {
+
+    if (!sessionActive) return;
+
+    const video = document.getElementById("postureVideo");
+    if (!video.videoWidth) return;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+
+    const imageData = canvas.toDataURL("image/jpeg");
+
+    fetch("/analyze_posture_frame", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: imageData })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        const score = data.score;
+
+        postureScores.push(score);
+
+        updateScore(score);
+        updateStability();
+        giveFeedback(score);
+
+    });
+}
+
+/* ================================
+   UPDATE CIRCLE
+================================ */
+
+function updateScore(score) {
+
+    const circle = document.getElementById("progressCircle");
+    const value = document.getElementById("scoreValue");
+
+    const maxOffset = 502;
+    const offset = maxOffset - (score / 10) * maxOffset;
+
+    circle.style.strokeDashoffset = offset;
+    value.innerText = score;
+}
+
+/* ================================
+   STABILITY CALCULATION
+================================ */
+
+function updateStability() {
+
+    if (postureScores.length < 2) return;
+
+    const avg = postureScores.reduce((a,b)=>a+b,0) / postureScores.length;
+
+    const variance = postureScores
+        .map(s => Math.pow(s - avg, 2))
+        .reduce((a,b)=>a+b,0) / postureScores.length;
+
+    const stability = Math.max(0, 100 - Math.sqrt(variance) * 10);
+
+    document.getElementById("stabilityScore").innerText =
+        stability.toFixed(1) + "%";
+}
+
+/* ================================
+   SMART COACH LOGIC
+================================ */
+
+function giveFeedback(score) {
+
+    const text = document.getElementById("coachText");
+    const state = document.getElementById("postureState");
+    const now = Date.now();
+
+    if (score >= 8) {
+        state.innerText = "🟢 Excellent Posture";
+        text.innerText = "Great alignment. Maintain this posture.";
+        speakWithDelay("Excellent posture", now);
+    }
+    else if (score >= 5) {
+        state.innerText = "🟡 Slight Slouch";
+        text.innerText = "Adjust your shoulders and straighten your back.";
+        speakWithDelay("Adjust your shoulders", now);
+    }
+    else {
+        state.innerText = "🔴 Poor Posture";
+        text.innerText = "Sit straight and align your head properly.";
+        speakWithDelay("Sit straight", now);
+    }
+}
+
+function speakWithDelay(message, now) {
+    if (now - lastVoiceTime > 8000) {
+        speak(message);
+        lastVoiceTime = now;
+    }
+}
+
+/* ================================
+   VOICE
+================================ */
+
+function speak(text) {
+    window.speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.rate = 1;
+    speech.pitch = 1;
+    speechSynthesis.speak(speech);
+}
+
+</script>
+
+{% endblock %}

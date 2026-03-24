@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="interview-layout">
+
+    <!-- ===============================
+         LEFT PANEL (AI INTERVIEWER)
+    ================================ -->
+    <div class="panel">
+
+        <div class="ai-avatar">AI</div>
+
+        <!-- Intro Text -->
+        <h2 id="introText"
+            data-name="{{ session.get('name') }}"
+            data-role="{{ session.get('selected_role') }}">
+        </h2>
+
+        <button id="proceedBtn" class="btn-primary" style="margin-top:20px;">
+            Proceed to Interview
+        </button>
+
+        <!-- Question Section -->
+        <div id="questionSection" style="display:none; margin-top:30px;">
+
+            <h3 id="question"></h3>
+
+            <div class="live-metrics">
+                <p>Emotion Score: <span id="emotionScore">0</span></p>
+                <p>Posture Score: <span id="postureScore">0</span></p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===============================
+         RIGHT PANEL (USER SIDE)
+    ================================ -->
+    <div class="panel">
+
+        <video id="video" autoplay muted playsinline></video>
+
+        <div class="controls" style="margin-top:20px;">
+            <button class="btn-primary" onclick="startRecording()">
+                🎤 Start Speaking
+            </button>
+
+            <button class="btn-outline-hero" onclick="submitAnswer()">
+                Submit Answer
+            </button>
+        </div>
+
+        <div class="answer-display" style="margin-top:20px;">
+            <h4>Your Answer:</h4>
+            <p id="answerText"></p>
+        </div>
+
+        <div class="answer-history" id="answerList">
+            <h4>Answer History</h4>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+{% endblock %}
